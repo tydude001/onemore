@@ -1,0 +1,9 @@
+Date,Workout Name,Duration,Exercise Name,Set Order,Weight,Reps,Distance,Seconds,Notes,Workout Notes,RPE
+2026-08-30 17:10:00,"Day A",1h 5m,"Squat (Barbell)",W,135.0,5.0,0,0.0,"","felt ok",
+2026-08-30 17:10:00,"Day A",1h 5m,"Squat (Barbell)",1,225.0,5.0,0,0.0,,,7
+2026-08-30 17:10:00,"Day A",1h 5m,"Squat (Barbell)",2,225.0,5.0,0,0.0,,,8
+2026-08-30 17:10:00,"Day A",1h 5m,"Bench Press (Barbell)",1,185.0,5.0,0,0.0,"paused",,8.5
+2026-08-30 17:10:00,"Day A",1h 5m,"Bench Press (Barbell)",2,185.0,4.0,0,0.0,,,9
+2026-08-30 17:10:00,"Day A",1h 5m,"Some New Machine",1,90.0,12.0,0,0.0,,,
+2026-09-02 06:30:00,"Day B",45m,"Deadlift (Barbell)",1,275.0,5.0,0,0.0,,,
+2026-09-02 06:30:00,"Day B",45m,"Overhead Press (Barbell)",1,95.0,8.0,0,0.0,,,

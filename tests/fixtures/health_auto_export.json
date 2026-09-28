@@ -1,0 +1,27 @@
+{"data": {
+  "metrics": [
+    {"name": "weight_body_mass", "units": "lb", "data": [
+      {"date": "2026-09-01 07:10:00 -0500", "qty": 184.0},
+      {"date": "2026-09-02 07:05:00 -0500", "qty": 183.6},
+      {"date": "2026-09-02 21:00:00 -0500", "qty": 185.0},
+      {"date": "2026-09-07 07:00:00 -0500", "qty": 182.4}
+    ]},
+    {"name": "resting_heart_rate", "units": "bpm", "data": [
+      {"date": "2026-09-06 00:00:00 -0500", "qty": 56},
+      {"date": "2026-09-07 00:00:00 -0500", "qty": 54}
+    ]},
+    {"name": "heart_rate", "units": "bpm", "data": [
+      {"date": "2026-09-07 08:00:00 -0500", "Min": 61, "Avg": 74, "Max": 132}
+    ]},
+    {"name": "sleep_analysis", "units": "hr", "data": [
+      {"date": "2026-09-07", "totalSleep": 7.4, "asleep": 7.1, "inBed": 8.0, "deep": 1.2}
+    ]},
+    {"name": "Weight & Body Mass", "units": "kg", "data": []}
+  ],
+  "workouts": [
+    {"id": "550e8400-e29b-41d4-a716-446655440000", "name": "Traditional Strength Training",
+     "start": "2026-09-08 17:30:00 -0500", "end": "2026-09-08 18:28:00 -0500", "duration": 3480,
+     "activeEnergyBurned": {"qty": 340, "units": "kcal"},
+     "heartRate": {"min": 88, "avg": 128, "max": 161}}
+  ]
+}}

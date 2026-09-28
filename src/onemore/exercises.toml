@@ -1,0 +1,529 @@
+# Canonical exercise catalog. `aliases.strong` are exact Strong export names.
+# Unknown source names are slugified and flagged by `onemore status --unmapped`.
+#
+# Equipment fields — the reason this file, not a constant, owns load arithmetic:
+#
+#   equipment    machine | mts | smith | dumbbell | cable | barbell | bodyweight | cardio
+#   step_lb      smallest load jump, in lb, because that is how the plates and pin
+#                stacks at this gym are marked. Rounding happens in lb and only at
+#                render time; the store is kg. Derived from the export where there was
+#                enough history to derive it — reproduce with scripts/derive_increments.py.
+#   ceiling_lb   the load above which this exercise cannot go. Set ONLY where the limit
+#                is actually known (the dumbbell rack). It is deliberately unset for
+#                every machine: the export's heaviest logged load is a floor on the
+#                stack top, not the stack top, and `dumbbell_ceiling` stays silent
+#                rather than invent one. Read them off the machines to fill these in.
+#   smith_tare_lb  the Smith bar's own counterbalanced weight. Unset everywhere: it
+#                varies by machine and branch, Strong logs added load only, and it has
+#                to be measured. Until it is, a Smith e1RM compares only to itself.
+#   available    false = the gym does not have it (Planet Fitness: no barbell, no rack).
+#                Kept in the catalog so old history still resolves and so a program can
+#                be checked against the equipment rather than silently prescribing air.
+
+# -- Planet Fitness: selectorized machines -------------------------------------------
+
+[leg_press]
+name = "Leg Press"
+pattern = "squat"
+equipment = "machine"
+step_lb = 5
+aliases.strong = ["Seated Leg Press (Machine)", "Leg Press"]
+
+[calf_press]
+name = "Calf Press on Leg Press"
+pattern = "calf"
+equipment = "machine"
+step_lb = 10
+aliases.strong = ["Calf Press on Leg Press", "Calf Press on Seated Leg Press"]
+
+[leg_curl]
+name = "Seated Leg Curl"
+pattern = "hinge"
+equipment = "machine"
+step_lb = 5
+aliases.strong = ["Seated Leg Curl (Machine)", "Lying Leg Curl (Machine)"]
+
+[leg_extension]
+name = "Leg Extension"
+pattern = "squat"
+equipment = "machine"
+step_lb = 10
+aliases.strong = ["Leg Extension (Machine)"]
+
+[hip_abductor]
+name = "Hip Abductor"
+pattern = "isolation"
+equipment = "machine"
+step_lb = 5
+aliases.strong = ["Hip Abductor (Machine)", "Hip Adductor (Machine)"]
+
+[machine_shoulder_press]
+name = "Machine Shoulder Press"
+pattern = "vertical_push"
+equipment = "machine"
+step_lb = 5
+aliases.strong = ["Shoulder Press (Machine)"]
+
+[chest_press]
+name = "Chest Press"
+pattern = "horizontal_push"
+equipment = "machine"
+step_lb = 5
+aliases.strong = ["Chest Press (Machine)"]
+
+[iso_lateral_chest_press]
+name = "Iso-Lateral Chest Press"
+pattern = "horizontal_push"
+equipment = "machine"
+step_lb = 5
+aliases.strong = ["Iso-Lateral Chest Press (Machine)"]
+
+[seated_row]
+name = "Seated Row"
+pattern = "horizontal_pull"
+equipment = "machine"
+step_lb = 5
+aliases.strong = ["Seated Row (Machine)"]
+
+# Two pulldowns, two training maxes: the cable station and the selectorized machine are
+# different load scales, the same reason the MTS ids are kept apart. Split 2026-09-21. The
+# cable keeps the bare id because the TM already stored under `lat_pulldown` was set off the
+# cable, and `Store.remap_exercise_ids` leaves a split id's state where it is -- so the
+# machine's history moves on the next import and nothing else has to.
+[lat_pulldown]
+name = "Lat Pulldown (Cable)"
+pattern = "vertical_pull"
+equipment = "cable"
+step_lb = 10
+# "Front Pulldown" (3 sessions, 30-40 lb, 2023) sat beside the machine pulldown twice and
+# the cable once, so it duplicates neither; filed with the cable as a guess. Only 10 sets.
+aliases.strong = ["Lat Pulldown (Cable)", "Lat Pulldown - Wide Grip (Cable)", "Front Pulldown"]
+
+[machine_lat_pulldown]
+name = "Lat Pulldown (Machine)"
+pattern = "vertical_pull"
+equipment = "machine"
+step_lb = 10  # 7 of its 10 load steps are 10 lb (scripts/derive_increments.py)
+aliases.strong = ["Lat Pulldown (Machine)"]
+
+[chest_fly]
+name = "Chest Fly (Machine)"
+pattern = "horizontal_push"
+equipment = "machine"
+step_lb = 10
+aliases.strong = ["Chest Fly", "Butterfly (Pec Deck)"]
+
+[machine_bicep_curl]
+name = "Machine Bicep Curl"
+pattern = "isolation"
+equipment = "machine"
+step_lb = 2.5  # the only 2.5 lb stack in the history; 6 of its 12 steps are 2.5
+aliases.strong = ["Bicep Curl (Machine)"]
+
+[preacher_curl]
+name = "Preacher Curl"
+pattern = "isolation"
+equipment = "machine"
+step_lb = 5
+aliases.strong = ["Preacher Curl (Machine)"]
+
+[triceps_extension_machine]
+name = "Triceps Extension (Machine)"
+pattern = "isolation"
+equipment = "machine"
+step_lb = 10
+# "Triceps Extension" is the same machine under Strong's older name: the two overlap in
+# time and their load ranges agree (scripts/derive_increments.py).
+aliases.strong = ["Triceps Extension (Machine)", "Triceps Extension"]
+
+[tricep_press_machine]
+name = "Tricep Press Machine"
+pattern = "isolation"
+equipment = "machine"
+step_lb = 10
+# Deliberately NOT merged into triceps_extension_machine: it runs 2022-06 to 2023-09,
+# ending as that one begins, and reaches 167.5 lb where that one reaches 130.
+aliases.strong = ["Tricep Press Machine"]
+
+[crunch_machine]
+name = "Crunch (Machine)"
+pattern = "core"
+equipment = "machine"
+step_lb = 10
+aliases.strong = ["Crunch (Machine)"]
+
+# -- Hammer Strength MTS. Separate ids from the selectorized machines above: same
+# movements, different load scales (MTS Shoulder Press tops at 75 lb where the
+# selectorized one tops at 100), and an e1RM is only ever compared to itself.
+
+[mts_shoulder_press]
+name = "MTS Shoulder Press"
+pattern = "vertical_push"
+equipment = "mts"
+step_lb = 5
+aliases.strong = ["MTS Shoulder Press"]
+
+[mts_chest_press]
+name = "MTS Chest Press"
+pattern = "horizontal_push"
+equipment = "mts"
+step_lb = 10
+aliases.strong = ["MTS Chest Press", "Mts Chest Press"]
+
+[mts_incline_press]
+name = "MTS Incline Press"
+pattern = "horizontal_push"
+equipment = "mts"
+step_lb = 10
+aliases.strong = ["MTS Incline Press", "Mts Incline Press"]
+
+[mts_row]
+name = "MTS Row"
+pattern = "horizontal_pull"
+equipment = "mts"
+step_lb = 10
+aliases.strong = ["MTS Row", "Mts Rows Machine"]
+
+[mts_front_pulldown]
+name = "MTS Front Pulldown"
+pattern = "vertical_pull"
+equipment = "mts"
+step_lb = 5
+aliases.strong = ["MTS Front Pulldown", "Mts Front Pulldown"]
+
+[mts_abdominal_crunch]
+name = "MTS Abdominal Crunch"
+pattern = "core"
+equipment = "mts"
+step_lb = 10
+aliases.strong = ["MTS Abdominal Crunch"]
+
+# -- Smith machine. Loads here are ADDED load; the bar's own weight is smith_tare_lb,
+# unset until it is measured at the branch. step_lb is the plates available, not a
+# property of the machine.
+
+[smith_squat]
+name = "Smith Squat"
+pattern = "squat"
+equipment = "smith"
+step_lb = 10
+aliases.strong = ["Squat (Smith Machine)", "Front Squat (Smith Machine)"]
+
+[smith_deadlift]
+name = "Smith Deadlift"
+pattern = "hinge"
+equipment = "smith"
+step_lb = 10
+aliases.strong = ["Deadlift (Smith Machine)"]
+
+[smith_romanian_deadlift]
+name = "Smith Romanian Deadlift"
+pattern = "hinge"
+equipment = "smith"
+step_lb = 10
+aliases.strong = ["Romanian Deadlift (Smith Machine)"]
+
+[smith_bench_press]
+name = "Smith Bench Press"
+pattern = "horizontal_push"
+equipment = "smith"
+step_lb = 10
+aliases.strong = ["Bench Press (Smith Machine)"]
+
+[smith_overhead_press]
+name = "Smith Overhead Press"
+pattern = "vertical_push"
+equipment = "smith"
+step_lb = 10
+aliases.strong = ["Overhead Press (Smith Machine)", "Shoulder Press (Smith Machine)"]
+
+[smith_calf_raise]
+name = "Smith Standing Calf Raise"
+pattern = "calf"
+equipment = "smith"
+step_lb = 10
+aliases.strong = ["Standing Calf Raise (Smith Machine)"]
+
+# -- Dumbbells. The rack is the ceiling and it is the one ceiling actually known.
+
+[dumbbell_bench_press]
+name = "Dumbbell Bench Press"
+pattern = "horizontal_push"
+equipment = "dumbbell"
+step_lb = 5
+ceiling_lb = 80
+aliases.strong = ["Bench Press (Dumbbell)"]
+
+[incline_dumbbell_bench_press]
+name = "Incline Dumbbell Bench Press"
+pattern = "horizontal_push"
+equipment = "dumbbell"
+step_lb = 5
+ceiling_lb = 80
+aliases.strong = ["Incline Bench Press (Dumbbell)"]
+
+[arnold_press]
+name = "Arnold Press"
+pattern = "vertical_push"
+equipment = "dumbbell"
+step_lb = 5
+ceiling_lb = 80
+aliases.strong = ["Arnold Press (Dumbbell)"]
+
+[dumbbell_row]
+name = "Dumbbell Row"
+pattern = "horizontal_pull"
+equipment = "dumbbell"
+step_lb = 5
+ceiling_lb = 80
+aliases.strong = ["Bent Over Row (Dumbbell)", "Bent Over One Arm Row (Dumbbell)"]
+
+[dumbbell_chest_fly]
+name = "Dumbbell Chest Fly"
+pattern = "horizontal_push"
+equipment = "dumbbell"
+step_lb = 5
+ceiling_lb = 80
+aliases.strong = ["Chest Fly (Dumbbell)"]
+
+[bicep_curl]
+name = "Bicep Curl"
+pattern = "isolation"
+equipment = "dumbbell"
+step_lb = 5
+ceiling_lb = 80
+aliases.strong = ["Bicep Curl (Dumbbell)", "Hammer Curl (Dumbbell)", "Seated Hammer Curl"]
+
+[lateral_raise]
+name = "Lateral Raise"
+pattern = "isolation"
+equipment = "dumbbell"
+step_lb = 5
+ceiling_lb = 80
+aliases.strong = ["Lateral Raise (Dumbbell)"]
+
+[seated_french_press]
+name = "Seated French Press"
+pattern = "isolation"
+equipment = "dumbbell"
+step_lb = 5
+ceiling_lb = 80
+aliases.strong = ["Seated French Press"]
+
+[standing_calf_raise]
+name = "Standing Calf Raise"
+pattern = "calf"
+equipment = "dumbbell"
+step_lb = 5
+ceiling_lb = 80
+aliases.strong = ["Standing Calf Raise (Dumbbell)"]
+
+[bulgarian_split_squat]
+name = "Bulgarian Split Squat"
+pattern = "squat"
+equipment = "dumbbell"
+step_lb = 5
+ceiling_lb = 80
+aliases.strong = ["Bulgarian Split Squat", "Split Squat (Dumbbell)"]
+
+# -- Cables --------------------------------------------------------------------------
+
+[tricep_pushdown]
+name = "Tricep Pushdown"
+pattern = "isolation"
+equipment = "cable"
+step_lb = 10
+aliases.strong = [
+    "Triceps Pushdown (Cable - Straight Bar)", "Triceps Extension (Cable)",
+    "Tricep Pressdown (Cable)",
+]
+
+[cable_hammer_curl]
+name = "Cable Hammer Curl"
+pattern = "isolation"
+equipment = "cable"
+step_lb = 5
+aliases.strong = ["Hammer Curl (Cable)"]
+
+[cable_bicep_curl]
+name = "Cable Bicep Curl"
+pattern = "isolation"
+equipment = "cable"
+step_lb = 10
+aliases.strong = ["Bicep Curl (Cable)"]
+
+[cable_front_raise]
+name = "Cable Front Raise"
+pattern = "isolation"
+equipment = "cable"
+step_lb = 5
+aliases.strong = ["Front Raise (Cable)"]
+
+[cable_seated_row]
+name = "Cable Seated Row"
+pattern = "horizontal_pull"
+equipment = "cable"
+step_lb = 10
+aliases.strong = ["Seated Row (Cable)"]
+
+[face_pull]
+name = "Face Pull"
+pattern = "horizontal_pull"
+equipment = "cable"
+step_lb = 5
+aliases.strong = ["Face Pull (Cable)"]
+
+# -- Fixed bars, bodyweight, cardio ---------------------------------------------------
+
+[skullcrusher]
+name = "Skullcrusher"
+pattern = "isolation"
+equipment = "barbell"  # the fixed-weight EZ bar rack, which this gym does have
+step_lb = 10
+aliases.strong = ["Skullcrusher (Barbell)", "Skullcrusher (EZ Bar)"]
+
+[pull_up]
+name = "Pull Up"
+pattern = "vertical_pull"
+equipment = "bodyweight"
+bodyweight = true
+step_lb = 5
+aliases.strong = ["Pull Up", "Pull Up (Weighted)", "Pull Up (Assisted)"]
+
+[chin_up]
+name = "Chin Up"
+pattern = "vertical_pull"
+equipment = "bodyweight"
+bodyweight = true
+step_lb = 5
+aliases.strong = ["Chin Up", "Chin Up (Weighted)", "Chin Up (Assisted)"]
+
+[dip]
+name = "Dip"
+pattern = "vertical_push"
+equipment = "bodyweight"
+bodyweight = true
+step_lb = 5
+aliases.strong = ["Chest Dip", "Triceps Dip", "Chest Dip (Weighted)"]
+
+[push_up]
+name = "Push Up"
+pattern = "horizontal_push"
+equipment = "bodyweight"
+bodyweight = true
+aliases.strong = ["Push Up"]
+
+[captains_chair_knee_raise]
+name = "Captain's Chair Knee Raise"
+pattern = "core"
+equipment = "bodyweight"
+bodyweight = true
+aliases.strong = ["Knee Raise (Captain's Chair)", "Leg Raise (Captain's Chair)"]
+
+[hanging_leg_raise]
+name = "Hanging Leg Raise"
+pattern = "core"
+equipment = "bodyweight"
+bodyweight = true
+aliases.strong = ["Hanging Leg Raise", "Hanging Knee Raise"]
+
+[decline_crunch]
+name = "Decline Crunch"
+pattern = "core"
+equipment = "bodyweight"
+bodyweight = true
+aliases.strong = ["Decline Crunch"]
+
+[plank]
+name = "Plank"
+pattern = "core"
+equipment = "bodyweight"
+bodyweight = true
+aliases.strong = ["Plank"]
+
+[stationary_bike]
+name = "Stationary Bike"
+pattern = "cardio"
+equipment = "cardio"
+aliases.strong = ["Sitting Bike", "Cycling"]
+
+[elliptical]
+name = "Elliptical"
+pattern = "cardio"
+equipment = "cardio"
+aliases.strong = ["Elliptical Machine", "Elliptical Trainer"]
+
+# -- Not at this gym. Kept so 2022-2025 history and any imported barbell program still
+# resolve to a real id, and so a program can be checked against the equipment.
+
+[back_squat]
+name = "Back Squat"
+pattern = "squat"
+equipment = "barbell"
+available = false
+step_lb = 5
+aliases.strong = ["Squat (Barbell)", "Back Squat (Barbell)"]
+
+[front_squat]
+name = "Front Squat"
+pattern = "squat"
+equipment = "barbell"
+available = false
+step_lb = 5
+aliases.strong = ["Front Squat (Barbell)"]
+
+[bench_press]
+name = "Bench Press"
+pattern = "horizontal_push"
+equipment = "barbell"
+available = false
+step_lb = 5
+aliases.strong = ["Bench Press (Barbell)"]
+
+[incline_bench_press]
+name = "Incline Bench Press"
+pattern = "horizontal_push"
+equipment = "barbell"
+available = false
+step_lb = 5
+aliases.strong = ["Incline Bench Press (Barbell)"]
+
+[deadlift]
+name = "Deadlift"
+pattern = "hinge"
+equipment = "barbell"
+available = false
+step_lb = 10
+aliases.strong = ["Deadlift (Barbell)"]
+
+[romanian_deadlift]
+name = "Romanian Deadlift"
+pattern = "hinge"
+equipment = "barbell"
+available = false
+step_lb = 10
+aliases.strong = ["Romanian Deadlift (Barbell)", "Stiff Leg Deadlift (Barbell)"]
+
+[overhead_press]
+name = "Overhead Press"
+pattern = "vertical_push"
+equipment = "barbell"
+available = false
+step_lb = 5
+aliases.strong = ["Overhead Press (Barbell)", "Strict Military Press (Barbell)"]
+
+[barbell_row]
+name = "Barbell Row"
+pattern = "horizontal_pull"
+equipment = "barbell"
+available = false
+step_lb = 5
+aliases.strong = ["Bent Over Row (Barbell)", "Pendlay Row (Barbell)"]
+
+[barbell_bicep_curl]
+name = "Barbell Bicep Curl"
+pattern = "isolation"
+equipment = "barbell"
+available = false
+step_lb = 5
+aliases.strong = ["Bicep Curl (Barbell)"]

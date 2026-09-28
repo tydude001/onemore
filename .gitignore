@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# uv
+.venv/
+
+# runtime data: sqlite db and raw Strong exports
+/data/
+
+# private half: its own repo, onemore-home, never mirrored
+/home/
