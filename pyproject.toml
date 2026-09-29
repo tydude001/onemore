@@ -1,11 +1,17 @@
 [project]
 name = "onemore"
 version = "0.1.0"
-description = "Program generator and adaptive tracker for weightlifting"
+description = "A self-hosted strength-training planner that reads your Strong app exports and adjusts next week's loads. Stdlib Python, no dependencies."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.13"
 dependencies = []
+keywords = ["fitness", "self-hosted", "stdlib", "strength-training", "strong-app", "workout-tracker"]
+
+[project.urls]
+Homepage = "https://github.com/tydude001/onemore"
+Repository = "https://github.com/tydude001/onemore"
+Issues = "https://github.com/tydude001/onemore/issues"
 
 [project.scripts]
 onemore = "onemore.cli:main"
