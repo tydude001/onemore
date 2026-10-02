@@ -149,6 +149,26 @@ def test_a_provisional_tm_never_reaches_past_the_recent_window_or_over_a_real_tm
     assert not any("provisional" in n for n in row["why"])
 
 
+def test_an_imported_session_checks_off_its_day_and_only_the_lifts_it_trained(cfg, seeded):
+    """The plan starts 09-01. A Strong session on 09-02 that opens with the leg press is
+    the day whose main lift that is; its other slots stay open, every other day stays
+    unlogged, and the next week is untouched -- the same matching the rules count with."""
+    csv = ("Date,Workout Name,Duration,Exercise Name,Set Order,Weight,Reps,Distance,"
+           "Seconds,Notes,Workout Notes,RPE\n"
+           '2026-09-02 17:00:00,"Legs",50m,"Leg Press",1,180.0,8.0,0,0.0,"","",\n')
+    import_strong_text(seeded, CAT, csv, "lb", "test")
+    wk = web.api_week(seeded, cfg, CAT, 1)
+    logged = [d for d in wk["days"] if d["logged"]]
+    assert len(logged) == 1
+    day = logged[0]
+    assert day["slots"][0]["lift"] == "leg_press"
+    assert day["logged"] == {"date": "2026-09-02", "title": "Legs"}
+    assert day["slots"][0]["logged"]
+    assert not any(s["logged"] for s in day["slots"][1:])
+    assert not any(s["logged"] for d in wk["days"] if not d["logged"] for s in d["slots"])
+    assert not any(d["logged"] for d in web.api_week(seeded, cfg, CAT, 2)["days"])
+
+
 def test_weeks_past_the_definition_cycle_the_body(cfg, seeded):
     wk = web.api_week(seeded, cfg, CAT, 14)
     assert wk["number"] == 14 and wk["kind"] == "work"

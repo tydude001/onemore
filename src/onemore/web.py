@@ -34,7 +34,7 @@ import json
 import mimetypes
 import re
 import threading
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib import resources
 from urllib.parse import parse_qs, unquote, urlsplit
@@ -47,6 +47,7 @@ from .model import Adjustment, Session, Set, SetType
 from .program.programs import DEFAULT_PROGRAM, PROGRAMS
 from .program.render import RenderedWeek, fmt_reps, render_week, warmup_steps
 from .program.spec import Abs, Bodyweight, Pct, Program, Rpe, Sets
+from .rules.base import match_days
 from .sources.apple_health import import_health_text
 from .sources.apple_health_xml import import_health_export
 from .store import Store
@@ -291,6 +292,24 @@ def _rendered(rw: RenderedWeek, previous: dict, notes: dict, catalog: Catalog,
     return days
 
 
+def _logged(days: list[dict], week, sessions: list[Session]) -> list[dict]:
+    """Mark each day an import has confirmed: `logged` is the session that trained it, by
+    the same matching the rules count with, and each slot is `logged` when that session
+    holds a completed work set on its lift. Nothing here is stored; a day is checked off
+    exactly when the log says so."""
+    for d in days:
+        d["logged"] = None
+        for s in d["slots"]:
+            s["logged"] = False
+    for i, sess in match_days(week.days, sessions):
+        d = days[i]
+        d["logged"] = {"date": sess.date.isoformat(), "title": sess.title}
+        trained = {e.exercise_id for e in sess.entries if e.work_sets()}
+        for s in d["slots"]:
+            s["logged"] = s["lift"] in trained
+    return days
+
+
 def api_week(store: Store, cfg: Config, catalog: Catalog, n: int | None,
              today: date | None = None) -> dict | None:
     today = today or date.today()
@@ -319,8 +338,9 @@ def api_week(store: Store, cfg: Config, catalog: Catalog, n: int | None,
         "defined_weeks": len(prog.weeks),
         "weeks": [{"number": w.number, "kind": str(w.kind), "label": w.label}
                   for w in prog.weeks],
-        "days": _rendered(rw, _previous(store, lifts_in_week, cfg.unit), notes, catalog,
-                          states, frozenset(prog.main_lifts())),
+        "days": _logged(_rendered(rw, _previous(store, lifts_in_week, cfg.unit), notes,
+                                  catalog, states, frozenset(prog.main_lifts())),
+                        week, store.sessions(since=start, until=end - timedelta(days=1))),
         "missing": [catalog.name(m) for m in prog.unavailable(catalog)],
         "vitals": [_vital(v) for v in vitals.summary(store, today, cfg.unit)],
         "header": vitals.to_line(vitals.summary(store, today, cfg.unit)),

@@ -13,6 +13,23 @@ Rule = Callable[["Context"], list[Adjustment]]
 HISTORY_DAYS = 21  # the rolling e1RM window; the engine loads this much before the week
 
 
+def match_days(days: tuple[Day, ...] | list[Day],
+               sessions: list[Session]) -> list[tuple[int, Session]]:
+    """(index into `days`, the session that trained it), in logged order. The one matching
+    `Context.logged_days` documents; the week page reads it too, so a day the page shows
+    as done is exactly a day the rules counted."""
+    unmatched = list(range(len(days)))
+    out = []
+    for s in sessions:
+        for e in sorted(s.entries, key=lambda e: e.order):
+            hit = next((i for i in unmatched if days[i].main_lift == e.exercise_id), None)
+            if hit is not None:
+                unmatched.remove(hit)
+                out.append((hit, s))
+                break
+    return out
+
+
 @dataclass(slots=True)
 class Context:
     """Everything a rule may look at when a week closes. Rules read; the engine writes."""
@@ -101,16 +118,7 @@ class Context:
         puts the leg curl on both lower days, so "the first day whose main lift appears
         anywhere in the session" called a Lower 2 session Lower 1 whenever Lower 1 was
         still unmatched, and `tm_progress` would then judge the wrong day's top set."""
-        unmatched = list(self.week.days)
-        logged = []
-        for s in self.sessions:
-            for e in sorted(s.entries, key=lambda e: e.order):
-                hit = next((d for d in unmatched if d.main_lift == e.exercise_id), None)
-                if hit is not None:
-                    unmatched.remove(hit)
-                    logged.append(hit)
-                    break
-        return logged
+        return [self.week.days[i] for i, _ in match_days(self.week.days, self.sessions)]
 
     def planned_days_logged(self) -> int:
         return len(self.logged_days())

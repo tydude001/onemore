@@ -294,12 +294,15 @@
     wk.days.forEach((day, di) => {
       const card = h("div", { class: "card day" });
       const prog = h("span", { class: "prog" });
-      const updateProg = () => { const dn = day.slots.filter((_, si) => done.has(`${di}:${si}`)).length; prog.textContent = `${dn}/${day.slots.length}`; };
-      card.append(h("div", { class: "day-h" }, h("h2", null, day.name), prog));
+      // A slot the Strong import confirmed is done for good; a hand tick covers the gap until the export lands.
+      const isDone = (slot, si) => slot.logged || done.has(`${di}:${si}`);
+      const updateProg = () => { const dn = day.slots.filter(isDone).length; prog.textContent = `${dn}/${day.slots.length}`; };
+      card.append(h("div", { class: "day-h" }, h("div", { class: "row" }, h("h2", null, day.name),
+        day.logged ? h("span", { class: "badge good", title: `from the Strong import: ${day.logged.title}` }, `logged ${fmt.date(day.logged.date)}`) : null), prog));
       day.slots.forEach((slot, si) => {
         const key = `${di}:${si}`;
-        const el = h("div", { class: "slot" + (done.has(key) ? " done" : "") });
-        const check = h("button", { class: "check" + (done.has(key) ? " on" : ""), "aria-label": "Mark done", onclick: () => {
+        const el = h("div", { class: "slot" + (isDone(slot, si) ? " done" : "") });
+        const check = h("button", { class: "check" + (isDone(slot, si) ? " on" : ""), "aria-label": slot.logged ? "Logged in Strong" : "Mark done", disabled: slot.logged ? true : null, onclick: () => {
           if (done.has(key)) done.delete(key); else done.add(key);
           ls.set(doneKey, [...done]); el.classList.toggle("done", done.has(key)); check.classList.toggle("on", done.has(key)); updateProg();
         } }, s("svg", { viewBox: "0 0 24 24" }, s("path", { d: "M5 13l4 4L19 7" })));
