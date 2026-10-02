@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, timedelta
 
 from .exercises import Catalog
@@ -34,6 +34,10 @@ class PlanStatus:
     started_on: date
     current_week: int
     deload_next: bool
+    # {week number: (start, end exclusive)} for every closed week, as it was actually
+    # trained. A repeat moves `started_on`, so dates derived from it are right only for the
+    # current week and later; a closed week must keep its own or it re-reads another's log.
+    closed: dict[int, tuple[date, date]] = field(default_factory=dict)
 
 
 def plan_status(store: Store) -> PlanStatus | None:
@@ -51,8 +55,10 @@ def plan_status(store: Store) -> PlanStatus | None:
                      program, DEFAULT_PROGRAM)
         program = DEFAULT_PROGRAM
         days = PROGRAMS[DEFAULT_PROGRAM]().days_per_week
+    closed = {int(n): (date.fromisoformat(s), date.fromisoformat(e))
+              for n, (s, e) in p.get("windows", {}).items()}
     return PlanStatus(program, days, date.fromisoformat(p["started_on"]),
-                      int(p["current_week"]), bool(p.get("deload_next", False)))
+                      int(p["current_week"]), bool(p.get("deload_next", False)), closed)
 
 
 def start_plan(store: Store, program: Program, on: date) -> PlanStatus:
@@ -62,6 +68,8 @@ def start_plan(store: Store, program: Program, on: date) -> PlanStatus:
 
 
 def week_window(status: PlanStatus, week_no: int) -> tuple[date, date]:
+    if week_no in status.closed:
+        return status.closed[week_no]
     start = status.started_on + timedelta(days=7 * (week_no - 1))
     return start, start + timedelta(days=7)
 
@@ -158,6 +166,14 @@ def advance(store: Store, program: Program, unit: str = "lb", force: bool = Fals
             break  # nothing else to learn from a week that was not trained
     store.add_adjustments(fired)
     p = store.get_plan("plan")
+    # Pin every closed week's dates before a repeat can move `started_on`. Weeks before the
+    # current one are backfilled from it: a plan that has never repeated derives them right,
+    # and from here on none goes unrecorded.
+    windows = p.setdefault("windows", {})
+    for n in range(1, status.current_week + (0 if repeat else 1)):
+        if str(n) not in windows:
+            s, e = week_window(status, n)
+            windows[str(n)] = [s.isoformat(), e.isoformat()]
     if repeat:
         # Shift the schedule so the repeated week starts now, not in the past.
         p["started_on"] = (date.fromisoformat(p["started_on"]) + timedelta(days=7)).isoformat()

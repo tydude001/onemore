@@ -133,7 +133,8 @@ def _plan(st: engine.PlanStatus | None) -> dict | None:
     start, end = engine.week_window(st, st.current_week)
     return {"program": st.program, "days": st.days, "started_on": st.started_on.isoformat(),
             "current_week": st.current_week, "deload_next": st.deload_next,
-            "window": [start.isoformat(), end.isoformat()]}
+            "window": [start.isoformat(), end.isoformat()],
+            "began_on": engine.week_window(st, 1)[0].isoformat()}
 
 
 def _vital(v: vitals.Vital) -> dict:

@@ -614,7 +614,7 @@
     const cur = st.plan ? st.plan.current_week : null;
     const frag = document.createDocumentFragment();
     frag.append(h("div", { class: "row between", style: "margin-bottom:.6rem" },
-      h("div", null, h("h1", null, p.name), h("div", { class: "ink2 small" }, `${p.weeks.length} weeks · ${p.days} days/week`, st.plan ? ` · running since ${fmt.date(st.plan.started_on)}` : " · not started")),
+      h("div", null, h("h1", null, p.name), h("div", { class: "ink2 small" }, `${p.weeks.length} weeks · ${p.days} days/week`, st.plan ? ` · running since ${fmt.date(st.plan.began_on)}` : " · not started")),
       h("div", { class: "seg" }, [3, 4].map(d => h("button", { class: d === p.days ? "on" : "", onclick: () => navigate(`/program?days=${d}`) }, `${d} days`)))));
     frag.append(h("div", { class: "chips", style: "margin-bottom:.8rem" }, p.lifts.map(l => link(`/lift/${l.id}`, { class: "chip" + (l.main ? " top" : "") }, l.name))));
     if (p.missing.length) frag.append(h("div", { class: "banner warn", style: "margin-bottom:.8rem" }, `Not at this gym: ${p.missing.join(", ")}`));

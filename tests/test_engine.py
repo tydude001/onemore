@@ -113,6 +113,36 @@ def test_a_missed_week_repeats_and_shifts_the_schedule(started):
     assert store.get_state("leg_press", "tm_kg") is None, "nothing downstream ran"
 
 
+def test_a_repeat_leaves_every_closed_week_on_the_dates_it_was_trained(started):
+    """A repeat moves `started_on`, and week 1's dates used to move with it -- so the page
+    re-read week 2's log as week 1's. Each closed week keeps the window it closed on, and
+    the plan still began on START."""
+    store, prog = started
+    log(store, START + timedelta(days=1), {"leg_press": [(145, 9)]})
+    log(store, START + timedelta(days=3), {"chest_press": [(100, 8)]})
+    _, status = engine.advance(store, prog, asof=START + timedelta(days=7), catalog=CAT)
+    assert status.current_week == 2
+    _, status = engine.advance(store, prog, asof=START + timedelta(days=14), catalog=CAT)
+    assert status.current_week == 2 and status.started_on == START + timedelta(days=7)
+    assert engine.week_window(status, 1) == (START, START + timedelta(days=7))
+    assert engine.week_window(status, 2) == (START + timedelta(days=14),
+                                             START + timedelta(days=21))
+
+
+def test_a_plan_closed_before_windows_were_recorded_is_backfilled(started):
+    """Weeks closed before the record existed are pinned at the next advance, from
+    `started_on`, before a repeat can move it."""
+    store, prog = started
+    p = store.get_plan("plan")
+    store.set_plan("plan", {**p, "current_week": 3})  # weeks 1-2 closed, nothing recorded
+    _, status = engine.advance(store, prog, asof=START + timedelta(days=21), catalog=CAT)
+    assert status.current_week == 3, "nothing logged: week 3 repeats"
+    assert engine.week_window(status, 1) == (START, START + timedelta(days=7))
+    assert engine.week_window(status, 2) == (START + timedelta(days=7),
+                                             START + timedelta(days=14))
+    assert engine.week_window(status, 3)[0] == START + timedelta(days=21)
+
+
 def test_advance_refuses_to_close_a_week_early(started):
     store, prog = started
     with pytest.raises(RuntimeError, match="--force"):
