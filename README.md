@@ -41,7 +41,8 @@ data file, not a fork — see [Your gym](#your-gym).
 2. **Send the export.** In Strong, *Settings → Export Data → share* to an iOS
    Shortcut that posts the file to onemore. Sending your whole history every
    time is fine — an import skips any session it already holds. Each day it
-   finds gets checked off on the page.
+   finds gets checked off on the page; once a week is advanced, a day it never
+   found is marked missed.
 3. **Advance the week**, from the page or with `onemore advance`. The rules
    read what you actually lifted and set next week's loads.
 4. **See why.** Every change shows up in the rules view (or
