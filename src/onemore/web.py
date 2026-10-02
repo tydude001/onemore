@@ -4,7 +4,8 @@
   GET  /static/<file>       app assets, served from the package
   GET  /api/status          history span, imports, plan position, per-lift estimates, vitals
   GET  /api/week[/<n>]      a rendered week: loads rounded per machine, rest, warm-ups,
-                            last actuals, the rule notes that changed it
+                            last actuals, the rule notes that changed it, the days the log
+                            confirms trained
   GET  /api/lifts           every lift with history, with an e1RM sparkline
   GET  /api/lift/<id>       one lift: per-session e1RM series, state, rule log, recent sets
   GET  /api/sessions        the log, newest first (?limit=&before=YYYY-MM-DD)
