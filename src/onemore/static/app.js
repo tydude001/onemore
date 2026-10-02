@@ -292,17 +292,20 @@
       "Seeded week. Loads come from a decayed historical e1RM; the 5+ top set is what sets each training max. Push it, log it, then advance."));
 
     wk.days.forEach((day, di) => {
-      const card = h("div", { class: "card day" });
+      const missed = wk.closed && !day.logged;
+      const card = h("div", { class: "card day" + (missed ? " missed" : "") });
       const prog = h("span", { class: "prog" });
-      // A slot the Strong import confirmed is done for good; a hand tick covers the gap until the export lands.
-      const isDone = (slot, si) => slot.logged || done.has(`${di}:${si}`);
+      // A slot the Strong import confirmed is done for good; a hand tick covers the gap until the
+      // export lands. Once the week is closed the log is final, so hand ticks no longer count.
+      const isDone = (slot, si) => slot.logged || (!wk.closed && done.has(`${di}:${si}`));
       const updateProg = () => { const dn = day.slots.filter(isDone).length; prog.textContent = `${dn}/${day.slots.length}`; };
       card.append(h("div", { class: "day-h" }, h("div", { class: "row" }, h("h2", null, day.name),
-        day.logged ? h("span", { class: "badge good", title: `from the Strong import: ${day.logged.title}` }, `logged ${fmt.date(day.logged.date)}`) : null), prog));
+        day.logged ? h("span", { class: "badge good", title: `from the Strong import: ${day.logged.title}` }, `logged ${fmt.date(day.logged.date)}`)
+          : missed ? h("span", { class: "badge warn", title: "no session in the Strong log matched this day" }, "missed") : null), prog));
       day.slots.forEach((slot, si) => {
         const key = `${di}:${si}`;
         const el = h("div", { class: "slot" + (isDone(slot, si) ? " done" : "") });
-        const check = h("button", { class: "check" + (isDone(slot, si) ? " on" : ""), "aria-label": slot.logged ? "Logged in Strong" : "Mark done", disabled: slot.logged ? true : null, onclick: () => {
+        const check = wk.closed && !slot.logged ? null : h("button", { class: "check" + (isDone(slot, si) ? " on" : ""), "aria-label": slot.logged ? "Logged in Strong" : "Mark done", disabled: slot.logged ? true : null, onclick: () => {
           if (done.has(key)) done.delete(key); else done.add(key);
           ls.set(doneKey, [...done]); el.classList.toggle("done", done.has(key)); check.classList.toggle("on", done.has(key)); updateProg();
         } }, s("svg", { viewBox: "0 0 24 24" }, s("path", { d: "M5 13l4 4L19 7" })));
@@ -316,7 +319,7 @@
           slot.equipment ? h("span", { class: "badge" }, slot.equipment) : null,
           isMain ? h("span", { class: "badge lift-main" }, "main") : null,
           !slot.available ? h("span", { class: "badge warn" }, "not at this gym") : null),
-          check,
+          check || "",
           h("div", { class: "slot-meta" }, meta.join(" · ")));
         const pres = h("div", { class: "pres" });
         for (const p of slot.prescribed) {

@@ -336,6 +336,8 @@ def api_week(store: Store, cfg: Config, catalog: Catalog, n: int | None,
         "number": rw.number, "kind": rw.kind, "label": rw.label, "unit": rw.unit,
         "window": [start.isoformat(), end.isoformat()],
         "is_current": n == st.current_week, "plan": _plan(st),
+        # Advanced past: the log is final, and a day it never confirmed was missed.
+        "closed": n < st.current_week,
         "defined_weeks": len(prog.weeks),
         "weeks": [{"number": w.number, "kind": str(w.kind), "label": w.label}
                   for w in prog.weeks],

@@ -319,6 +319,7 @@ details.fold summary::-webkit-details-marker { display: none; }
 .slot:first-of-type { border-top: 0; }
 .slot > :not(.check) { grid-column: 1; min-width: 0; }
 .slot.done { opacity: 0.45; }
+.day.missed .slot { opacity: 0.6; }
 .slot.done .slot-name { text-decoration: line-through; }
 .slot-name { font-family: var(--font-sans); font-size: 1rem; font-weight: 700; line-height: 1.35; display: flex; align-items: center; gap: var(--sp-1); flex-wrap: wrap; }
 .slot-name .badge { font-size: 0.64rem; padding: 1px var(--sp-1); }

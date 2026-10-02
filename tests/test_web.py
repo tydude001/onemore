@@ -169,6 +169,16 @@ def test_an_imported_session_checks_off_its_day_and_only_the_lifts_it_trained(cf
     assert not any(d["logged"] for d in web.api_week(seeded, cfg, CAT, 2)["days"])
 
 
+def test_a_week_is_closed_only_once_the_plan_has_advanced_past_it(cfg, seeded):
+    """A week whose dates have ended but which is still current may yet get its export, so
+    only an advanced-past week is final -- the page marks its unlogged days missed."""
+    assert not web.api_week(seeded, cfg, CAT, 1)["closed"]
+    p = seeded.get_plan("plan")
+    seeded.set_plan("plan", {**p, "current_week": 2})
+    assert web.api_week(seeded, cfg, CAT, 1)["closed"]
+    assert not web.api_week(seeded, cfg, CAT, 2)["closed"]
+
+
 def test_weeks_past_the_definition_cycle_the_body(cfg, seeded):
     wk = web.api_week(seeded, cfg, CAT, 14)
     assert wk["number"] == 14 and wk["kind"] == "work"
