@@ -44,12 +44,15 @@ with onemore's `sources/strong_csv.py`:
 - openGym's code comments describe a *newer* Strong export that writes the workout's
   length as seconds in a `Duration (sec)` column and adds a `Workout #` session-number
   column (`durationSec` alias; the `#`→`no` header normalisation). onemore's docstring
-  lists three variants, none with those headers; with them, `parse_duration` would get a
-  bare number and return `None`. **Unverified** — no such export was seen here; check a
-  fresh export before treating it as a bug.
+  lists three variants, none with those headers. With them the duration would be lost
+  before `parse_duration` is reached: `_header_map` strips only `(kg)`/`(lb)` suffixes, so
+  `Duration (sec)` never maps to `duration`. **Not seen here:** all 11 exports the live app
+  has saved, the newest from 2026-10-02, carry the old 12-column header. Re-check when a
+  fresh export arrives; the fix would be a header alias, not a parser change.
 - Session identity: openGym keys a Strong session on date + start time + workout name
   (its issue #505: two sessions on one day had merged); onemore keys on
-  (Date, Workout Name), where Strong's `Date` already carries the start time.
+  (Date, Workout Name), where Strong's `Date` already carries the start time
+  (`2022-05-16 17:58:27`), so the merge in #505 cannot happen here.
 - Ids of imported sessions are a hash of what they are (`importId`, cyrb53), so the same
   file imported on two devices before they sync merges to one copy. Re-import skips days
   that already hold a workout.
@@ -87,7 +90,7 @@ exercise stills and animations are **not** open: © Gym visual, licensed for ope
 (README § License).
 
 **Health.** Created 2026-07-18; 10.3k stars and 1.26k forks within twelve weeks; 126 open
-issues; last push 2026-10-12. Releases every few days to two weeks (v1.4.1 on
+issues; last push 2026-10-12 (all as of 2026-10-12). Releases every few days to two weeks (v1.4.1 on
 2026-10-10). 75 contributors, but the owner has 1,297 commits against 96 for the next. The
 README states the code is largely drafted with Claude Code. Its own roadmap table is
 already stale (lists v1.4.0 for November; v1.4.1 is out).
@@ -99,7 +102,7 @@ for (per-set logging, warm-up/drop sets, notes, rest timer, a JSON export) and a
 Strong lacks (self-hosting, an API, progression rules). Two catches for this setup: on
 iPhone it is a PWA or a self-built Xcode app, not an App Store app, and the README
 mentions no Apple Watch app. Strong's watch app is one of the reasons its users give for
-staying (`hevy-api-and-strong-csv.md`, `strong-data-out.md` § 5).
+staying (`strong-data-out.md` § 5).
 
 ### As a feed for onemore
 
@@ -112,18 +115,15 @@ Strong as the logger.
 
 ### Borrowable
 
-- **Check the newer Strong headers** (`Duration (sec)`, `Workout #`) against a fresh
-  export and add them to the adapter's known variants if real.
-- **Hostile-input and import-twice tests** for the Strong adapter, as openGym has
-  (`import-csv.hostile.test.js`, `import-csv.twice.test.js`) — onemore's idempotence is a
-  stated invariant (`CLAUDE.md`).
+- **Check the newer Strong headers** (`Duration (sec)`, `Workout #`) against each fresh
+  export, and add them to the adapter's known variants if they appear (none by 2026-10-02).
+- **Hostile-input tests** for the Strong adapter, as openGym has
+  (`import-csv.hostile.test.js`). Import-twice is already covered
+  (`test_store_import_is_idempotent`).
 - **A per-muscle weekly hard-set count** on the week view, from the catalog plus a
   primary/secondary muscle map, as display only. The decayed fatigue score is a model of
   a model; onemore's rule for readiness is `recovery_deload` on measured resting HR, and
   the set count is the part that needs no constants.
-- **Snap a deload to owned weights**, as openGym does for dumbbells — onemore already
-  rounds to `step_lb` per exercise, so this is a check that a deload never lands between
-  stack plates, not new machinery.
 
 Ideas only: openGym is AGPL and onemore is MIT, so no code or data files (the
 exercise→muscle JSON included) are copied.
