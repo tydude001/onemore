@@ -2,7 +2,7 @@
 
 The denylist lives in the private `home/` repo, because a denylist in the public tree would
 publish the list. So this skips wherever `home/` is absent — CI, a stranger's clone — and runs
-on the one machine that holds the record. The pre-push hook in `home/hooks/` is the same scan
+on the one machine that holds the record. That machine's pre-push gate runs the same scan
 over commit messages too; this catches a hit before it is committed at all.
 """
 
